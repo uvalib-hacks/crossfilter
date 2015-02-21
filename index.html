@@ -154,8 +154,6 @@ aside {
 
 <div id="body">
 
-<a href="https://github.com/square"><img src="logotype.png" width="122" height="31"></a>
-
 <h1>CO2 concentration</h1>
 
 <div id="charts">
@@ -194,9 +192,9 @@ aside {
 <script src="d3.v3.min.js"></script>
 <script>
 
-function setupd3() {
+function setupd3(flights) {
 // (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
-d3.csv("flights-3m.json", function(error, flights) {
+//d3.csv("flights-3m.json", function(error, flights) {
 
   // Various formatters.
   var formatNumber = d3.format(",d"),
@@ -549,12 +547,31 @@ d3.csv("flights-3m.json", function(error, flights) {
 
     return d3.rebind(chart, brush, "on");
   }
-});
+//});
+}
+
+// run BigQuery
+function runQuery() {
+  var request = gapi.client.bigquery.jobs.query({
+    'projectId': "dewekker-atmos-data",
+    'timeoutMs': '30000',
+    'query': 'SELECT timestamp, level, mixing FROM [atmos_data.co2_data] order by timestamp;'
+    });
+  request.execute(function(response) {
+    var bqData = response.result.rows;
+    setupd3(bqData);
+  });
 }
 
 function onClientLoadHandler(){
-  alert('foo');
+  var config = {
+    'client_id': '1055445375481-r05gd786q7hpb230jtfqmdtc6v7tin57.apps.googleusercontent.com',
+    'scope': 'https://www.googleapis.com/auth/bigquery'
+  };
+  gapi.auth.authorize(config, function() {
+    runQuery();
+  });
 }
 
 </script>
-<script src="https://apis.google.com/js/client.js" onload="onClientLoadHandler()"></script>
+<script src="https://apis.google.com/js/client.js" onload="onClientLoadHandler"></script>
