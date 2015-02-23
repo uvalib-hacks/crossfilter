@@ -563,15 +563,21 @@ function runQuery() {
   });
 }
 
-function onClientLoadHandler(){
-  var config = {
-    'client_id': '1055445375481-r05gd786q7hpb230jtfqmdtc6v7tin57.apps.googleusercontent.com',
-    'scope': 'https://www.googleapis.com/auth/bigquery'
-  };
-  gapi.auth.authorize(config, function() {
-    runQuery();
-  });
-}
 
+      function makeRequest() {
+        var request = gapi.client.urlshortener.url.get({
+          'shortUrl': 'http://goo.gl/fbsS'
+        });
+        request.then(function(response) {
+          appendResults(response.result.longUrl);
+        }, function(reason) {
+          console.log('Error: ' + reason.result.error.message);
+        });
+      }
+
+      function init() {
+        gapi.client.setApiKey('AIzaSyBwNEdCtFWWqlZka_O-ZQ3ec5gWvbmWzC0');
+        gapi.client.load('bigquery', 'v2').then(runQuery);
+      }
 </script>
-<script src="https://apis.google.com/js/client.js" onload="onClientLoadHandler()"></script>
+<script src="https://apis.google.com/js/client.js?onload=init"></script>
